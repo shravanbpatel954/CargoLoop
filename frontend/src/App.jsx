@@ -15,8 +15,9 @@ import Matches from './pages/Matches'
 import Analytics from './pages/Analytics'
 import LiveTracking from './pages/LiveTracking'
 import AdminVerification from './pages/AdminVerification'
-
 import UserManagement from './pages/UserManagement'
+import CapacityListings from './pages/CapacityListings'
+import TrustGraph from './pages/TrustGraph'
 
 function isStandalonePWA() {
   return (
@@ -89,6 +90,16 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="capacity-listings"
+          element={
+            <ProtectedRoute roles={['carrier', 'admin']}>
+              <CapacityListings />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="trust-graph" element={<TrustGraph />} />
         <Route path="matches" element={<Matches />} />
         <Route path="analytics" element={<Analytics />} />
         <Route

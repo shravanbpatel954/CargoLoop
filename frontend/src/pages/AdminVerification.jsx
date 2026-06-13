@@ -26,10 +26,7 @@ export default function AdminVerification() {
 
   const handleVerify = async (id, status) => {
     try {
-      await verifyVehicle(id, { 
-        status, 
-        trust_score: status === 'verified' ? Math.floor(Math.random() * 20) + 80 : 0 
-      })
+      await verifyVehicle(id, { status })
       setVehicles(vehicles.filter(v => v._id !== id))
     } catch (err) {
       console.error(err)
@@ -90,18 +87,18 @@ export default function AdminVerification() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-white">{vehicle.availableCapacity} <span className="text-sm font-normal text-slate-500">kg</span></p>
+                  <p className="text-2xl font-bold text-white">{vehicle.maxCapacityKg} <span className="text-sm font-normal text-slate-500">kg Max</span></p>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6 bg-slate-950/50 p-4 rounded-xl border border-slate-800">
                 <div>
-                  <p className="text-xs text-slate-500">Pick-up Location</p>
-                  <p className="text-sm text-slate-200 font-medium truncate">{vehicle.currentLocation}</p>
+                  <p className="text-xs text-slate-500">Vehicle Type</p>
+                  <p className="text-sm text-slate-200 font-medium truncate">{vehicle.vehicleType}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">Drop-off Location</p>
-                  <p className="text-sm text-slate-200 font-medium truncate">{vehicle.destination}</p>
+                  <p className="text-xs text-slate-500">Cold Storage Support</p>
+                  <p className="text-sm text-slate-200 font-medium truncate">{vehicle.coldStorage ? "Yes" : "No"}</p>
                 </div>
                 
                 {vehicle.verificationProof && (

@@ -34,23 +34,53 @@ async def generate_match(payload: GenerateMatchRequest, _: dict = Depends(get_cu
     if not load:
         raise HTTPException(status_code=404, detail="Load not found")
 
-    vehicles = [doc async for doc in db.vehicles.find()]
-    if not vehicles:
-        raise HTTPException(status_code=400, detail="No vehicles available")
+    listings = [doc async for doc in db.capacity_listings.find({"status": "active"})]
+    if not listings:
+        raise HTTPException(status_code=400, detail="No active capacity listings available")
 
-    best = find_best_match(load, vehicles)
+    vehicles = [doc async for doc in db.vehicles.find({"status": "verified"})]
+
+    best = find_best_match(load, listings, vehicles)
     if not best:
-        raise HTTPException(status_code=404, detail="No suitable vehicle found")
+        raise HTTPException(status_code=404, detail="No suitable capacity listing found")
 
+    listing = next(l for l in listings if str(l["_id"]) == best["listingId"])
     vehicle = next(v for v in vehicles if str(v["_id"]) == best["vehicleId"])
-    explanation = await explain_match(load, vehicle, best["score"], best["breakdown"])
+    
+    carrier = await db.users.find_one({"_id": vehicle.get("createdBy")}) if "createdBy" in vehicle else None
+    trust_score = carrier.get("trustScore", 80) if carrier else 80
+            
+    prio = 0
+    if load.get("urgency", "").upper() == "HIGH":
+        prio += 2
+    cargo = load.get("cargoType", "").lower()
+    if any(k in cargo for k in ["mango", "vegetable", "fruit", "dairy", "fish", "flower", "perishable"]):
+        prio += 1
+    urgency_boost = 1.4 if prio > 0 else 1.0
+
+    score, breakdown = composite_score(
+        load_weight=load["weight"],
+        available_capacity=listing["availableCapacityKg"],
+        vehicle_destination=listing["destination"],
+        load_drop=load["drop"],
+        vehicle_location=listing["currentLocation"],
+        load_pickup=load["pickup"],
+        reliability=vehicle.get("reliability", 85),
+        cargo_type=load.get("cargoType", "cargo"),
+        cold_storage=vehicle.get("coldStorage", False),
+        carrier_trust=trust_score,
+        urgency_boost=urgency_boost
+    )
+    
+    explanation = await explain_match(load, listing, vehicle, score, breakdown)
 
     match_doc = {
         "loadId": best["loadId"],
+        "listingId": best["listingId"],
         "vehicleId": best["vehicleId"],
-        "score": best["score"],
+        "score": score,
         "status": "recommended",
-        "breakdown": best["breakdown"],
+        "breakdown": breakdown,
         "explanation": explanation,
         "createdAt": datetime.now(timezone.utc),
     }
@@ -59,10 +89,12 @@ async def generate_match(payload: GenerateMatchRequest, _: dict = Depends(get_cu
     return MatchResult(
         loadId=best["loadId"],
         vehicleId=best["vehicleId"],
-        vehicleNumber=best["vehicleNumber"],
-        score=best["score"],
-        breakdown=best["breakdown"],
+        vehicleNumber=vehicle["vehicleNumber"],
+        score=score,
+        breakdown=breakdown,
         explanation=explanation,
+        carrierName=carrier.get("name", "Unknown") if carrier else "Unknown",
+        carrierTrustScore=trust_score
     )
 
 

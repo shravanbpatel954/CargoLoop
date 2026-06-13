@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react'
-import { generateMatch, getLoads, getVehicles } from '../services/api'
+import { generateMatch, getLoads, getCapacityListings, getVehicles } from '../services/api'
 import LoadCard from '../components/LoadCard'
-import VehicleCard from '../components/VehicleCard'
 import MatchCard from '../components/MatchCard'
 import MapView from '../components/MapView'
-import { Route as RouteIcon, Zap } from 'lucide-react'
+import { Route as RouteIcon, Zap, Route } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function Matches() {
   const [loads, setLoads] = useState([])
+  const [listings, setListings] = useState([])
   const [vehicles, setVehicles] = useState([])
   const [selectedMatch, setSelectedMatch] = useState(null)
   const [matchingId, setMatchingId] = useState(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    Promise.all([getLoads(), getVehicles()])
-      .then(([l, v]) => {
+    Promise.all([getLoads(), getCapacityListings(), getVehicles()])
+      .then(([l, list, v]) => {
         setLoads(l)
+        setListings(list.filter(x => x.status === 'active'))
         setVehicles(v)
       })
       .catch(() => setError('Failed to load data'))
@@ -30,14 +31,13 @@ export default function Matches() {
       const result = await generateMatch(loadId)
       setSelectedMatch(result)
     } catch {
-      setError('Matching failed. Ensure vehicles with enough capacity are registered.')
+      setError('Matching failed. Ensure there are active capacity listings available.')
     } finally {
       setMatchingId(null)
     }
   }
 
   const handleAutoMatchAll = async () => {
-    // Demo function to show "complete solution" feel
     if (loads.length === 0) return;
     handleMatch(loads[0]._id);
   }
@@ -53,7 +53,7 @@ export default function Matches() {
             <h1 className="text-3xl font-bold text-white heading-font">Autonomous Match Engine</h1>
           </div>
           <p className="text-slate-400">
-            Proprietary scoring evaluates route overlap, distance, reliability, and cargo fit in real-time.
+            Proprietary scoring evaluates active capacity listings against load requirements using AI.
           </p>
         </div>
         <button 
@@ -99,25 +99,39 @@ export default function Matches() {
             </motion.div>
           )}
           <div className="glass-panel p-2 rounded-3xl overflow-hidden h-[400px]">
-             <MapView loads={loads} vehicles={vehicles} selectedMatch={selectedMatch} />
+             {/* MapView might still expect vehicles array format for markers, passing listings as vehicles for now */}
+             <MapView loads={loads} vehicles={listings} selectedMatch={selectedMatch} />
           </div>
         </div>
       </div>
 
-      {vehicles.length > 0 && (
+      {listings.length > 0 && (
         <div className="pt-8 border-t border-slate-800">
           <div className="flex items-center justify-between px-2 mb-6">
-            <h2 className="font-bold text-white heading-font text-xl">Active Fleet Radar</h2>
-            <span className="text-sm font-medium text-brand-400">{vehicles.length} assets tracking</span>
+            <h2 className="font-bold text-white heading-font text-xl">Active Capacity Radar</h2>
+            <span className="text-sm font-medium text-brand-400">{listings.length} routes active</span>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {vehicles.map((vehicle) => (
-              <VehicleCard
-                key={vehicle._id}
-                vehicle={vehicle}
-                highlighted={vehicle._id === selectedMatch?.vehicleId}
-              />
-            ))}
+            {listings.map((listing) => {
+              const vehicle = vehicles.find(v => v._id === listing.vehicleId);
+              return (
+                <div key={listing._id} className={`glass-panel p-5 rounded-2xl border ${listing._id === selectedMatch?.listingId ? 'border-brand-500 shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'border-slate-800'}`}>
+                   <div className="flex justify-between items-start mb-3">
+                     <div>
+                       <h3 className="font-bold text-white">{vehicle?.vehicleNumber || 'Unknown'}</h3>
+                       <p className="text-xs text-brand-400">{listing.availableCapacityKg}kg available</p>
+                     </div>
+                     <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs font-bold border border-emerald-500/20">Active</span>
+                   </div>
+                   <div className="space-y-2 mt-4">
+                     <div className="flex items-center gap-2 text-sm">
+                       <Route size={14} className="text-slate-500"/>
+                       <span className="text-slate-300">{listing.currentLocation} <span className="text-slate-600">→</span> {listing.destination}</span>
+                     </div>
+                   </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

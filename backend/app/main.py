@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.mongodb import close_db, connect_db
-from app.routes import analytics, auth, loads, matches, vehicles, users
+from app.routes import analytics, auth, loads, matches, vehicles, users, capacity_listings
 
 
 from datetime import datetime, timezone
@@ -25,10 +25,16 @@ async def seed_admin():
         })
         print("Admin user seeded.")
 
+import asyncio
+from fastapi import WebSocket, WebSocketDisconnect
+from app.services.ws_manager import manager
+from app.agents import autonomous_matcher
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await connect_db()
     await seed_admin()
+    asyncio.create_task(autonomous_matcher.run_loop())
     yield
     await close_db()
 
@@ -56,9 +62,19 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(loads.router, prefix="/loads", tags=["loads"])
 app.include_router(vehicles.router, prefix="/vehicles", tags=["vehicles"])
+app.include_router(capacity_listings.router, prefix="/capacity-listings", tags=["capacity_listings"])
 app.include_router(matches.router, prefix="/matches", tags=["matches"])
 app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 app.include_router(users.router, prefix="/users", tags=["users"])
+
+@app.websocket("/ws/agent")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 
 @app.get("/health")

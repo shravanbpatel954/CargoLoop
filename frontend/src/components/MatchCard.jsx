@@ -2,6 +2,25 @@ import { Sparkles, Gauge, AlertTriangle, IndianRupee, Leaf, Navigation } from 'l
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
+function TrustBadge({ score }) {
+  let tier = { name: 'NEW', color: 'text-slate-400', bg: 'bg-slate-400/10', border: 'border-slate-400/20', icon: '🔰' }
+  if (score >= 90) tier = { name: 'PLATINUM', color: 'text-cyan-400', bg: 'bg-cyan-400/10', border: 'border-cyan-400/20', icon: '💎' }
+  else if (score >= 80) tier = { name: 'GOLD', color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20', icon: '🥇' }
+  else if (score >= 65) tier = { name: 'SILVER', color: 'text-slate-200', bg: 'bg-slate-200/10', border: 'border-slate-200/20', icon: '🥈' }
+
+  return (
+    <div className="group relative cursor-help">
+      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${tier.bg} ${tier.color} ${tier.border}`}>
+        <span>{tier.icon}</span>
+        <span>{tier.name}</span>
+      </div>
+      <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-slate-900 border border-slate-700 p-2 rounded-lg text-[10px] text-slate-300 shadow-2xl text-center z-50">
+        Trust score {score} based on verified deliveries. {tier.name === 'PLATINUM' ? 'Priority autonomous matching active.' : ''}
+      </div>
+    </div>
+  )
+}
+
 export default function MatchCard({ match, load }) {
   const navigate = useNavigate()
   
@@ -25,7 +44,11 @@ export default function MatchCard({ match, load }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
         <div>
           <p className="text-sm text-brand-300 font-medium">Optimal AI Match</p>
-          <h3 className="mt-1 text-3xl font-bold heading-font text-white">{match.vehicleNumber}</h3>
+          <div className="flex items-center gap-3 mt-1">
+            <h3 className="text-3xl font-bold heading-font text-white">{match.vehicleNumber}</h3>
+            {match.carrierTrustScore && <TrustBadge score={match.carrierTrustScore} />}
+          </div>
+          {match.carrierName && <p className="text-sm text-slate-400 mt-1">{match.carrierName}</p>}
         </div>
         <div className="flex gap-2">
           {match.breakdown?.dynamicPrice && (

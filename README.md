@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">Logistics intelligence, fully autonomous. Turning empty miles into opportunity.</h4>
+<h4 align="center">Turning Empty Miles Into Opportunity.</h4>
 
 <p align="center">
   <a href="#vision">Vision</a> •
@@ -21,9 +21,9 @@
 
 ## Vision
 
-**CargoLoop** is an enterprise-grade logistics and transit matching platform built for **FAR AWAY 2026**. 
+**CargoLoop** is an **AI-Powered Backhaul Optimization Platform** built for **FAR AWAY 2026**. 
 
-The logistics industry loses billions of dollars and generates massive unnecessary carbon emissions due to **"deadhead miles"**—trucks driving empty on their return trips. CargoLoop solves this by seamlessly connecting shippers with spare carrier capacity using an **Autonomous Match Engine** and an **Agentic AI Dispatcher**.
+CargoLoop identifies underutilized transport capacity and intelligently matches it with shipment demand, helping carriers monetize empty return journeys while reducing logistics costs for shippers.
 
 By optimizing backhaul capacity, CargoLoop reduces deadhead miles, cuts CO₂ emissions (issuing Green Credits), and maximizes fleet utilization—all wrapped in a stunning, high-performance web application.
 

@@ -9,18 +9,13 @@ from datetime import datetime
 
 class VehicleCreate(BaseModel):
     vehicle_number: str = Field(alias="vehicleNumber")
-    current_location: str = Field(alias="currentLocation")
-    current_lat: Optional[float] = Field(default=None, alias="currentLat")
-    current_lng: Optional[float] = Field(default=None, alias="currentLng")
-    destination: str
-    dest_lat: Optional[float] = Field(default=None, alias="destLat")
-    dest_lng: Optional[float] = Field(default=None, alias="destLng")
-    available_capacity: float = Field(gt=0, alias="availableCapacity")
+    vehicle_type: str = Field(default="Truck", alias="vehicleType")
+    max_capacity_kg: float = Field(gt=0, alias="maxCapacityKg")
     cold_storage: bool = Field(default=False, alias="coldStorage")
-    reliability: float = Field(ge=0, le=100, default=85)
+    rc_verified: bool = Field(default=False, alias="rcVerified")
+    insurance_verified: bool = Field(default=False, alias="insuranceVerified")
     status: str = Field(default="pending") # pending, verified, rejected
     verification_proof: Optional[str] = Field(default=None, alias="verificationProof")
-    trust_score: Optional[float] = Field(default=None, alias="trustScore")
 
     model_config = {"populate_by_name": True}
 

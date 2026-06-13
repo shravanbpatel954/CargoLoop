@@ -11,6 +11,12 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
     role: UserRole = "shipper"
+    phone: str | None = None
+    aadhaar_verified: bool = Field(default=False, alias="aadhaarVerified")
+    license_verified: bool = Field(default=False, alias="licenseVerified")
+    trust_score: float = Field(default=80, alias="trustScore")
+
+    model_config = {"populate_by_name": True}
 
 
 class UserLogin(BaseModel):
@@ -23,6 +29,10 @@ class UserPublic(BaseModel):
     name: str
     email: EmailStr
     role: UserRole
+    phone: str | None = None
+    aadhaar_verified: bool = Field(default=False, alias="aadhaarVerified")
+    license_verified: bool = Field(default=False, alias="licenseVerified")
+    trust_score: float = Field(default=80, alias="trustScore")
     photo: str | None = None
     created_at: datetime = Field(alias="createdAt")
 

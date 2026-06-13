@@ -21,8 +21,15 @@ const ALL_NAV = [
   { to: '/app', label: 'Command Center', icon: LayoutDashboard, end: true, roles: ['shipper', 'carrier', 'admin'] },
   { to: '/app/loads', label: 'Dispatch', icon: Package, roles: ['shipper', 'admin'] },
   { to: '/app/vehicles', label: 'Fleet Hub', icon: Truck, roles: ['carrier', 'admin'] },
-  { to: '/app/matches', label: 'Autonomous Match', icon: RouteIcon, roles: ['shipper', 'carrier', 'admin'] },
+  { to: '/app/capacity-listings', label: 'Capacity Listings', icon: RouteIcon, roles: ['carrier', 'admin'] },
+  { to: '/app/matches', label: 'Autonomous Match', icon: Hexagon, roles: ['shipper', 'carrier', 'admin'] },
   { to: '/app/analytics', label: 'Impact Data', icon: BarChart3, roles: ['shipper', 'carrier', 'admin'] },
+]
+
+const adminLinks = [
+  { name: 'Verification', path: '/app/admin', icon: ShieldAlert },
+  { name: 'Users', path: '/app/users', icon: Users },
+  { name: 'Trust Graph', path: '/app/trust-graph', icon: BarChart3 },
 ]
 
 const roleLabels = {
@@ -93,32 +100,22 @@ export default function AppShell() {
           ))}
         {role === 'admin' && (
           <>
-            <NavLink
-              to="/app/admin"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                  isActive
-                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-white border border-transparent'
-                }`
-              }
-            >
-              <ShieldAlert size={18} />
-              Verification
-            </NavLink>
-            <NavLink
-              to="/app/users"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                  isActive
-                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-white border border-transparent'
-                }`
-              }
-            >
-              <Users size={18} />
-              Users
-            </NavLink>
+            {adminLinks.map((link) => (
+              <NavLink
+                key={link.path}
+                to={link.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                    isActive
+                      ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
+                      : 'text-slate-400 hover:bg-slate-900 hover:text-white border border-transparent'
+                  }`
+                }
+              >
+                <link.icon size={18} />
+                {link.name}
+              </NavLink>
+            ))}
           </>
         )}
       </nav>

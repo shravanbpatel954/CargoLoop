@@ -85,7 +85,9 @@ def composite_score(
     pickup_lat: float = None,
     pickup_lng: float = None,
     drop_lat: float = None,
-    drop_lng: float = None
+    drop_lng: float = None,
+    carrier_trust: float = 80.0,
+    urgency_boost: float = 1.0
 ) -> tuple[float, dict[str, float]]:
     
     scores = {
@@ -108,7 +110,14 @@ def composite_score(
     risk = risk_score(load_pickup, load_drop)
     risk_penalty = risk * 0.15 
     
-    final = min(100.0, max(0.0, round(weighted + cargo_bonus - risk_penalty, 1)))
+    base_score = weighted + cargo_bonus - risk_penalty
+    
+    # Trust Multiplier
+    trust_multiplier = 0.8 + (carrier_trust / 500)
+    
+    final_score = base_score * trust_multiplier * urgency_boost
+    
+    final = min(100.0, max(0.0, round(final_score, 1)))
 
     if vehicle_lat is not None and vehicle_lng is not None and drop_lat is not None and drop_lng is not None:
         dist = haversine_km((vehicle_lat, vehicle_lng), (drop_lat, drop_lng))

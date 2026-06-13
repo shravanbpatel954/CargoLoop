@@ -43,6 +43,8 @@ export const createVehicle = (payload) => api.post('/vehicles', payload).then((r
 export const generateMatch = (loadId) =>
   api.post('/matches/generate', { loadId }).then((r) => r.data)
 export const getMatches = () => api.get('/matches').then((r) => r.data)
+export const createCapacityListing = (data) => api.post('/capacity-listings', data).then((r) => r.data)
+export const getCapacityListings = () => api.get('/capacity-listings').then((r) => r.data)
 export const getAnalytics = () => api.get('/analytics/summary').then((r) => r.data)
 export const verifyVehicle = (id, payload) => api.patch(`/vehicles/${id}/verify`, payload).then((r) => r.data)
 export const getUsers = () => api.get('/users').then((r) => r.data)

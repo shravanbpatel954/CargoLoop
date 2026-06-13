@@ -5,21 +5,26 @@ import { getAnalytics, getLoads, getVehicles } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import MapView from '../components/MapView'
 import AgenticDispatcher from '../components/AgenticDispatcher'
+import AgentFeed from '../components/AgentFeed'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion } from 'framer-motion'
 
 const statIcons = {
-  revenueGenerated: IndianRupee,
+  activeCapacityListings: Route,
+  verifiedVehicles: Truck,
+  verifiedCarriers: ShieldAlert,
   emptyKmSaved: Route,
-  co2SavedKg: Leaf,
+  revenueGenerated: IndianRupee,
   vehicleUtilization: Truck,
 }
 
 const statLabels = {
+  activeCapacityListings: 'Active Capacity Listings',
+  verifiedVehicles: 'Verified Vehicles',
+  verifiedCarriers: 'Verified Carriers',
+  emptyKmSaved: 'Total Empty KM Saved',
   revenueGenerated: 'Revenue Generated',
-  emptyKmSaved: 'Empty KM Saved',
-  co2SavedKg: 'CO₂ Saved (Green Credits)',
-  vehicleUtilization: 'Fleet Utilization',
+  vehicleUtilization: 'Vehicle Utilization %',
 }
 
 // Dummy data for the carbon graph over time
@@ -107,15 +112,15 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {analytics &&
-          ['revenueGenerated', 'emptyKmSaved', 'co2SavedKg', 'vehicleUtilization'].map((key, i) => {
+          ['activeCapacityListings', 'verifiedVehicles', 'verifiedCarriers', 'emptyKmSaved', 'revenueGenerated', 'vehicleUtilization'].map((key, i) => {
             const Icon = statIcons[key]
             const suffix = key === 'vehicleUtilization' ? '%' : key === 'revenueGenerated' ? '' : ''
             const value =
               key === 'revenueGenerated'
-                ? `₹${analytics[key].toLocaleString('en-IN')}`
-                : `${analytics[key]}${suffix}`
+                ? `₹${analytics[key]?.toLocaleString('en-IN') || 0}`
+                : `${analytics[key] || 0}${suffix}`
 
             return (
               <motion.div
@@ -126,7 +131,7 @@ export default function Dashboard() {
                 className="glass-panel p-5 rounded-2xl"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`rounded-xl p-3 ${key === 'co2SavedKg' ? 'bg-accent/20 text-accent' : 'bg-brand-500/20 text-brand-400'}`}>
+                  <div className={`rounded-xl p-3 bg-brand-500/20 text-brand-400`}>
                     <Icon size={24} />
                   </div>
                   <div>
@@ -156,64 +161,75 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Panels Row */}
-      <div className={`grid gap-6 ${role === 'shipper' ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
-        <PredictiveRiskPanel />
+      <div className={`grid gap-6 ${role === 'shipper' || role === 'admin' ? 'lg:grid-cols-[1fr_400px]' : 'lg:grid-cols-2'}`}>
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <PredictiveRiskPanel />
 
-        <div className="glass-panel p-5 rounded-2xl h-[250px] flex flex-col">
-          <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
-            <Leaf size={18} className="text-accent" />
-            Carbon Tokenization
-          </h2>
-          <div className="flex-1 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={carbonData}>
-                <defs>
-                  <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
-                <Area type="monotone" dataKey="co2" stroke="#10b981" fillOpacity={1} fill="url(#colorCo2)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            <div className="glass-panel p-5 rounded-2xl h-[250px] flex flex-col">
+              <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
+                <Leaf size={18} className="text-accent" />
+                Carbon Tokenization
+              </h2>
+              <div className="flex-1 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={carbonData}>
+                    <defs>
+                      <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
+                    <Area type="monotone" dataKey="co2" stroke="#10b981" fillOpacity={1} fill="url(#colorCo2)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
+
+          {role === 'shipper' && (
+            <div className="glass-panel p-5 rounded-2xl flex flex-col h-[250px] overflow-hidden relative">
+               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-purple-500 to-transparent opacity-50" />
+               <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
+                 <Truck size={18} className="text-brand-400" />
+                 Active Fleet Radar
+               </h2>
+               <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
+                 {vehicles.filter(v => v.status === 'verified').length === 0 ? (
+                   <p className="text-sm text-slate-500 text-center mt-4">No verified vehicles nearby.</p>
+                 ) : (
+                   vehicles.filter(v => v.status === 'verified').map((v, i) => (
+                     <motion.div 
+                       key={v._id}
+                       initial={{ opacity: 0, x: -10 }}
+                       animate={{ opacity: 1, x: 0 }}
+                       transition={{ delay: i * 0.1 }}
+                       className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"
+                     >
+                       <div>
+                         <p className="text-sm font-bold text-slate-200">{v.vehicleNumber}</p>
+                         <p className="text-xs text-slate-500">{v.availableCapacity} kg • {v.coldStorage ? 'Cold' : 'Standard'}</p>
+                       </div>
+                       <div className="text-right">
+                         <div className="flex items-center gap-1 justify-end">
+                           <ShieldAlert size={12} className="text-purple-400" />
+                           <span className="text-xs font-bold text-purple-400">{v.trustScore}%</span>
+                         </div>
+                         <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">Trust Score</p>
+                       </div>
+                     </motion.div>
+                   ))
+                 )}
+               </div>
+            </div>
+          )}
         </div>
 
-        {role === 'shipper' && (
-          <div className="glass-panel p-5 rounded-2xl flex flex-col h-[250px] overflow-hidden relative">
-             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-purple-500 to-transparent opacity-50" />
-             <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
-               <Truck size={18} className="text-brand-400" />
-               Active Fleet Radar
-             </h2>
-             <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
-               {vehicles.filter(v => v.status === 'verified').length === 0 ? (
-                 <p className="text-sm text-slate-500 text-center mt-4">No verified vehicles nearby.</p>
-               ) : (
-                 vehicles.filter(v => v.status === 'verified').map((v, i) => (
-                   <motion.div 
-                     key={v._id}
-                     initial={{ opacity: 0, x: -10 }}
-                     animate={{ opacity: 1, x: 0 }}
-                     transition={{ delay: i * 0.1 }}
-                     className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"
-                   >
-                     <div>
-                       <p className="text-sm font-bold text-slate-200">{v.vehicleNumber}</p>
-                       <p className="text-xs text-slate-500">{v.availableCapacity} kg • {v.coldStorage ? 'Cold' : 'Standard'}</p>
-                     </div>
-                     <div className="text-right">
-                       <div className="flex items-center gap-1 justify-end">
-                         <ShieldAlert size={12} className="text-purple-400" />
-                         <span className="text-xs font-bold text-purple-400">{v.trustScore}%</span>
-                       </div>
-                       <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">Trust Score</p>
-                     </div>
-                   </motion.div>
-                 ))
-               )}
-             </div>
+        {/* Live Agent Feed Column */}
+        {(role === 'shipper' || role === 'admin') && (
+          <div className="h-[524px] lg:h-auto">
+             <AgentFeed />
           </div>
         )}
       </div>

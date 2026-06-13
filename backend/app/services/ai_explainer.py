@@ -10,17 +10,17 @@ FALLBACK_TEMPLATE = """Recommended because:
 • Estimated fuel savings ~{fuel_savings}%"""
 
 
-async def explain_match(load: dict, vehicle: dict, score: float, breakdown: dict) -> str:
+async def explain_match(load: dict, listing: dict, vehicle: dict, score: float, breakdown: dict) -> str:
     if settings.gemini_api_key:
         try:
-            return await _gemini_explain(load, vehicle, score, breakdown)
+            return await _gemini_explain(load, listing, vehicle, score, breakdown)
         except Exception:
             pass
 
-    return _fallback_explain(load, vehicle, score, breakdown)
+    return _fallback_explain(load, listing, vehicle, score, breakdown)
 
 
-async def _gemini_explain(load: dict, vehicle: dict, score: float, breakdown: dict) -> str:
+async def _gemini_explain(load: dict, listing: dict, vehicle: dict, score: float, breakdown: dict) -> str:
     prompt = f"""Explain why this vehicle is the best option for this load.
 Keep it concise with 4 bullet points.
 
@@ -29,11 +29,11 @@ Load:
 {load['pickup']} → {load['drop']}
 Urgency: {load.get('urgency', 'Medium')}
 
-Vehicle:
-{vehicle['availableCapacity']}kg capacity
+Vehicle & Capacity Listing:
+{listing['availableCapacityKg']}kg available capacity
 Cold storage: {'Yes' if vehicle.get('coldStorage') else 'No'}
 Reliability {vehicle.get('reliability', 85)}%
-Route: {vehicle['currentLocation']} → {vehicle['destination']}
+Route: {listing['currentLocation']} → {listing['destination']}
 
 Score: {score}
 Breakdown: {breakdown}
@@ -53,7 +53,7 @@ Breakdown: {breakdown}
     return data["candidates"][0]["content"]["parts"][0]["text"].strip()
 
 
-def _fallback_explain(load: dict, vehicle: dict, score: float, breakdown: dict) -> str:
+def _fallback_explain(load: dict, listing: dict, vehicle: dict, score: float, breakdown: dict) -> str:
     capacity_fit = "excellent" if breakdown.get("capacity", 0) >= 30 else "acceptable"
     route_fit = "high" if breakdown.get("route", 0) >= 25 else "moderate"
     cold_chain = (

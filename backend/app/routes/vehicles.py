@@ -55,18 +55,24 @@ async def get_vehicle(vehicle_id: str, _: dict = Depends(get_current_user)):
     return _serialize(doc)
 
 
+from pydantic import BaseModel
+
+class VerifyPayload(BaseModel):
+    status: str
+
 @router.patch("/{vehicle_id}/verify")
-async def verify_vehicle(vehicle_id: str, status: str, trust_score: float = None, _: dict = Depends(require_roles("admin"))):
+async def verify_vehicle(vehicle_id: str, payload: VerifyPayload, _: dict = Depends(require_roles("admin"))):
     db = get_db()
     if not ObjectId.is_valid(vehicle_id):
         raise HTTPException(status_code=400, detail="Invalid vehicle id")
 
-    updates = {"status": status}
-    if trust_score is not None:
-        updates["trustScore"] = trust_score
+    updates = {"status": payload.status}
+    if payload.status == "verified":
+        updates["rcVerified"] = True
+        updates["insuranceVerified"] = True
 
     result = await db.vehicles.update_one({"_id": ObjectId(vehicle_id)}, {"$set": updates})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Vehicle not found")
     
-    return {"message": f"Vehicle {status}"}
+    return {"message": f"Vehicle {payload.status}"}
