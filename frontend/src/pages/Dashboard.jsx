@@ -107,10 +107,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {(role === 'shipper' || role === 'admin') && (
-        <AgenticDispatcher onCreated={fetchData} />
-      )}
-
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {analytics &&
           ['revenueGenerated', 'emptyKmSaved', 'co2SavedKg', 'vehicleUtilization'].map((key, i) => {
@@ -143,74 +139,83 @@ export default function Dashboard() {
           })}
       </div>
 
+      {/* Main Map & Dispatcher Row */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 h-[524px] glass-panel rounded-2xl overflow-hidden relative">
+        {role === 'shipper' && (
+          <div className="lg:col-span-1 h-[600px]">
+            <AgenticDispatcher onCreated={fetchData} />
+          </div>
+        )}
+        <div className={`lg:col-span-${role === 'shipper' ? '2' : '3'} h-[600px] glass-panel rounded-2xl overflow-hidden relative shadow-2xl border-brand-500/20`}>
            <MapView loads={loads} vehicles={vehicles} />
-           <div className="absolute top-4 left-4 z-[1000] bg-slate-900/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">
-             Live Fleet Radar
+           <div className="absolute top-4 left-4 z-[1000] bg-slate-900/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-xl text-sm font-bold text-slate-200 shadow-xl flex items-center gap-2">
+             <Route size={16} className="text-brand-400" />
+             Live Global Radar
            </div>
         </div>
-        <div className="space-y-6">
-          <PredictiveRiskPanel />
+      </div>
 
-          <div className="glass-panel p-5 rounded-2xl h-[250px] flex flex-col">
-            <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
-              <Leaf size={18} className="text-accent" />
-              Carbon Tokenization
-            </h2>
-            <div className="flex-1 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={carbonData}>
-                  <defs>
-                    <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
-                  <Area type="monotone" dataKey="co2" stroke="#10b981" fillOpacity={1} fill="url(#colorCo2)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+      {/* Bottom Panels Row */}
+      <div className={`grid gap-6 ${role === 'shipper' ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+        <PredictiveRiskPanel />
+
+        <div className="glass-panel p-5 rounded-2xl h-[250px] flex flex-col">
+          <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
+            <Leaf size={18} className="text-accent" />
+            Carbon Tokenization
+          </h2>
+          <div className="flex-1 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={carbonData}>
+                <defs>
+                  <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
+                <Area type="monotone" dataKey="co2" stroke="#10b981" fillOpacity={1} fill="url(#colorCo2)" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-
-          {role === 'shipper' && (
-            <div className="glass-panel p-5 rounded-2xl flex flex-col h-[250px] overflow-hidden relative">
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-purple-500 to-transparent opacity-50" />
-               <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
-                 <Truck size={18} className="text-brand-400" />
-                 Active Fleet Radar
-               </h2>
-               <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
-                 {vehicles.filter(v => v.status === 'verified').length === 0 ? (
-                   <p className="text-sm text-slate-500 text-center mt-4">No verified vehicles nearby.</p>
-                 ) : (
-                   vehicles.filter(v => v.status === 'verified').map((v, i) => (
-                     <motion.div 
-                       key={v._id}
-                       initial={{ opacity: 0, x: -10 }}
-                       animate={{ opacity: 1, x: 0 }}
-                       transition={{ delay: i * 0.1 }}
-                       className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"
-                     >
-                       <div>
-                         <p className="text-sm font-bold text-slate-200">{v.vehicleNumber}</p>
-                         <p className="text-xs text-slate-500">{v.availableCapacity} kg • {v.coldStorage ? 'Cold' : 'Standard'}</p>
-                       </div>
-                       <div className="text-right">
-                         <div className="flex items-center gap-1 justify-end">
-                           <ShieldAlert size={12} className="text-purple-400" />
-                           <span className="text-xs font-bold text-purple-400">{v.trustScore}%</span>
-                         </div>
-                         <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">Trust Score</p>
-                       </div>
-                     </motion.div>
-                   ))
-                 )}
-               </div>
-            </div>
-          )}
         </div>
+
+        {role === 'shipper' && (
+          <div className="glass-panel p-5 rounded-2xl flex flex-col h-[250px] overflow-hidden relative">
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-purple-500 to-transparent opacity-50" />
+             <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
+               <Truck size={18} className="text-brand-400" />
+               Active Fleet Radar
+             </h2>
+             <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
+               {vehicles.filter(v => v.status === 'verified').length === 0 ? (
+                 <p className="text-sm text-slate-500 text-center mt-4">No verified vehicles nearby.</p>
+               ) : (
+                 vehicles.filter(v => v.status === 'verified').map((v, i) => (
+                   <motion.div 
+                     key={v._id}
+                     initial={{ opacity: 0, x: -10 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     transition={{ delay: i * 0.1 }}
+                     className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"
+                   >
+                     <div>
+                       <p className="text-sm font-bold text-slate-200">{v.vehicleNumber}</p>
+                       <p className="text-xs text-slate-500">{v.availableCapacity} kg • {v.coldStorage ? 'Cold' : 'Standard'}</p>
+                     </div>
+                     <div className="text-right">
+                       <div className="flex items-center gap-1 justify-end">
+                         <ShieldAlert size={12} className="text-purple-400" />
+                         <span className="text-xs font-bold text-purple-400">{v.trustScore}%</span>
+                       </div>
+                       <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">Trust Score</p>
+                     </div>
+                   </motion.div>
+                 ))
+               )}
+             </div>
+          </div>
+        )}
       </div>
     </motion.div>
   )

@@ -8,7 +8,9 @@ import {
   LogOut,
   Menu,
   X,
-  Hexagon
+  Hexagon,
+  ShieldAlert,
+  Users
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
@@ -89,20 +91,35 @@ export default function AppShell() {
           {navItems.map((item) => (
             <NavItem key={item.to} {...item} />
           ))}
-          {role === 'admin' && (
-          <NavLink
-            to="/app/admin"
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                isActive
-                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
-                  : 'text-slate-400 hover:bg-slate-900 hover:text-white border border-transparent'
-              }`
-            }
-          >
-            <ShieldAlert size={18} />
-            Verification
-          </NavLink>
+        {role === 'admin' && (
+          <>
+            <NavLink
+              to="/app/admin"
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                  isActive
+                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
+                    : 'text-slate-400 hover:bg-slate-900 hover:text-white border border-transparent'
+                }`
+              }
+            >
+              <ShieldAlert size={18} />
+              Verification
+            </NavLink>
+            <NavLink
+              to="/app/users"
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                  isActive
+                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                    : 'text-slate-400 hover:bg-slate-900 hover:text-white border border-transparent'
+                }`
+              }
+            >
+              <Users size={18} />
+              Users
+            </NavLink>
+          </>
         )}
       </nav>
 

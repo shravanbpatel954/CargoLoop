@@ -1,155 +1,145 @@
-# CargoLoop
+<h1 align="center">
+  <br>
+  <img src="./frontend/public/cargo_logo.png" alt="CargoLoop" width="120" style="border-radius: 20px; box-shadow: 0 0 20px rgba(14,165,233,0.5);">
+  <br>
+  CargoLoop
+  <br>
+</h1>
 
-**Turning Empty Miles Into Opportunity**
+<h4 align="center">Logistics intelligence, fully autonomous. Turning empty miles into opportunity.</h4>
 
-CargoLoop is a logistics backhaul matching platform built for FAR AWAY 2026 (Logistics & Transit theme). It connects shippers with trucks that have spare capacity on return trips — reducing empty kilometers, cutting CO₂, and increasing fleet utilization.
+<p align="center">
+  <a href="#vision">Vision</a> •
+  <a href="#key-features">Key Features</a> •
+  <a href="#the-workflow">The Workflow</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#setup--installation">Installation</a> •
+  <a href="#demo-flow-for-judges">Demo Flow</a>
+</p>
 
-## Auth & Roles
+---
 
-| Role | Permissions |
-|------|-------------|
-| **shipper** | Create loads, run matches, view analytics |
-| **carrier** | Register vehicles, run matches, view analytics |
-| **admin** | Full access (demo / ops) |
+## Vision
 
-- Email/password login (JWT, StudyBuddy-style)
-- **Google OAuth** — same credentials as StudyBuddy project
-- PWA installable on mobile with splash screen
+**CargoLoop** is an enterprise-grade logistics and transit matching platform built for **FAR AWAY 2026**. 
 
-### Demo logins (after `python -m scripts.seed_demo`)
+The logistics industry loses billions of dollars and generates massive unnecessary carbon emissions due to **"deadhead miles"**—trucks driving empty on their return trips. CargoLoop solves this by seamlessly connecting shippers with spare carrier capacity using an **Autonomous Match Engine** and an **Agentic AI Dispatcher**.
 
-| Email | Password | Role |
-|-------|----------|------|
-| shipper@cargoloop.demo | Test1234 | shipper |
-| carrier@cargoloop.demo | Test1234 | carrier |
-| admin@cargoloop.demo | Test1234 | admin |
+By optimizing backhaul capacity, CargoLoop reduces deadhead miles, cuts CO₂ emissions (issuing Green Credits), and maximizes fleet utilization—all wrapped in a stunning, high-performance web application.
 
-### Google OAuth setup
+---
 
-Add this redirect URI in [Google Cloud Console](https://console.cloud.google.com/):
+## Key Features
 
-```
-http://localhost:8000/auth/google/callback
-```
+🚀 **Agentic Dispatcher (Powered by Gemini AI)**
+Ditch manual data entry. Shippers can simply type natural language requests (e.g., *"I need to move 5 tons of temperature-sensitive vaccines from Delhi to Mumbai tomorrow"*), and our AI agent instantly extracts the cargo type, urgency, weight, and precisely geocodes the pickup and drop-off coordinates to dispatch the load!
 
-Copy `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from StudyBuddy's `backend/.env` into CargoLoop's `backend/.env`.
+🧠 **Autonomous Match Engine**
+Our proprietary algorithm evaluates capacity fit, route proximity (using Haversine distance), driver reliability, and cold-chain requirements to automatically match shipments to the most optimal empty fleet. An **AI Explainer** breaks down exactly why a truck was chosen.
 
-## MVP Features
+🌍 **Live Global Radar & Predictive Risk AI**
+A real-time interactive map visualizes active loads and fleet movements. A predictive risk engine proactively flags potential disruptions (e.g., heavy monsoons, border congestion) and suggests AI rerouting.
 
-1. Create shipment requests (loads)
-2. Register available vehicles
-3. Run the matching engine to find the best vehicle
-4. AI explains why that vehicle was selected (Gemini or smart fallback)
-5. Impact analytics dashboard (revenue, empty KM saved, CO₂, utilization)
-6. Live map with loads, vehicles, and matched route
+🌿 **Carbon Tokenization & Green Credits**
+Real-time tracking of Empty KM saved dynamically calculates CO₂ emission reductions, displaying the generated Green Credits in a beautiful, interactive Area Chart.
+
+🛡️ **Admin Verification & User Management**
+A complete enterprise governance suite. Carriers register their vehicles by providing Verification Proofs (RC/Docs). Admins review pending fleets, assign AI Trust Scores, and manage all users (promotions, suspensions) from a dedicated Admin Control Center.
+
+✨ **Next-Gen Cyber Aesthetics**
+A breathtaking UI featuring Glassmorphism, tailored neon color palettes (Cyan & Emerald), dynamic particle networks, and a "Cyber Truck" motion-effect Auth screen that provides an unforgettable user experience.
+
+---
+
+## The Workflow
+
+CargoLoop features three distinct user journeys operating in perfect sync:
+
+### 1. The Carrier Flow (Fleet Providers)
+- Registers an account and heads to the **Fleet Hub**.
+- Registers available fleet capacity, specifying pickup/drop-off destinations, cold-storage capabilities, and linking their **Verification Proof (RC Document)**.
+- Waits for Admin verification and the assignment of a Trust Score.
+- Automatically receives autonomous matches for their empty return trips!
+
+### 2. The Admin Flow (Platform Operators)
+- Logs into the exclusive **Admin Command Center** (The Global Radar).
+- Accesses the **Verification Panel** to review pending Carrier registrations, inspect linked documents, and Approve/Reject vehicles.
+- Uses the **User Management** panel to oversee all Shippers and Carriers, suspending malicious actors or promoting ops team members.
+
+### 3. The Shipper Flow (Freight Senders)
+- Accesses the **Dispatch** interface and types their requirement into the **Agentic Dispatcher**.
+- The AI autonomously creates the load and plots it on the map.
+- Navigates to the **Autonomous Match** engine to instantly find the best verified carrier for their load.
+- Views the **Impact Data** dashboard to see the Revenue Generated and Green Credits earned.
+
+---
 
 ## Tech Stack
 
-| Layer    | Stack                          |
-|----------|--------------------------------|
-| Frontend | React, Vite, Tailwind CSS, react-leaflet |
-| Backend  | FastAPI, Motor (MongoDB async) |
-| Database | MongoDB Atlas                  |
-| AI       | Google Gemini (optional)       |
+**Frontend (The Visual Experience)**
+* **Core:** React 18, Vite, React Router DOM
+* **Styling:** Tailwind CSS (Custom themes, Glassmorphism, Custom Scrollbars)
+* **Animation:** Framer Motion (Micro-interactions, Cyber Truck Auth effects)
+* **Maps & Charts:** React-Leaflet, Recharts
+* **Icons:** Lucide React
 
-## Project Structure
+**Backend (The Brains)**
+* **Core:** FastAPI (High performance, async python)
+* **Database:** MongoDB Atlas (Motor Async driver)
+* **AI:** Google Gemini AI SDK (Natural Language Parsing & Explanations)
+* **Security:** PyJWT, bcrypt, Google OAuth Integration
 
-```
-cargoloop/
-├── backend/
-│   └── app/
-│       ├── main.py
-│       ├── routes/      # loads, vehicles, matches, analytics
-│       ├── services/    # matching, scoring, ai_explainer
-│       ├── database/    # MongoDB connection
-│       └── models/      # Pydantic schemas
-└── frontend/
-    └── src/
-        ├── pages/       # Dashboard, Loads, Vehicles, Matches, Analytics
-        ├── components/  # Cards, MapView
-        └── services/    # API client
-```
+---
 
-## Setup
+## Setup & Installation
 
 ### Prerequisites
-
 - Node.js 18+
 - Python 3.11+
-- MongoDB Atlas cluster (free tier works)
+- MongoDB Atlas cluster URL
+- Google Gemini API Key
 
-### 1. MongoDB Atlas
-
-1. Create a cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
-2. Add a database user and allow your IP in Network Access
-3. Copy the connection string
-
-### 2. Backend
-
+### 1. Backend Setup
 ```bash
 cd backend
 python -m venv .venv
 
 # Windows
 .venv\Scripts\activate
-
 # macOS/Linux
 source .venv/bin/activate
 
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env with your MONGODB_URI and optional GEMINI_API_KEY
+```
+*Edit `.env` to include your `MONGODB_URI` and `GEMINI_API_KEY`.*
 
+```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
-Seed demo data for the hackathon pitch:
-
-```bash
-cd backend
-python -m scripts.seed_demo
-```
-
-### 3. Frontend
-
+### 2. Frontend Setup
 ```bash
 cd frontend
 npm install
+cp .env.example .env
+```
+*Edit `.env` to include `VITE_API_URL=http://localhost:8000`.*
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173)
+---
 
-## API Endpoints
+## Demo Flow (For Judges)
 
-| Method | Endpoint              | Description              |
-|--------|-----------------------|--------------------------|
-| POST   | `/loads`              | Create shipment          |
-| GET    | `/loads`              | List shipments           |
-| POST   | `/vehicles`           | Register vehicle         |
-| GET    | `/vehicles`           | List vehicles            |
-| POST   | `/matches/generate`   | Run matching engine      |
-| GET    | `/matches`            | List past matches        |
-| GET    | `/analytics/summary`  | Impact metrics           |
-| GET    | `/health`             | Health check             |
+To make the best impression during your pitch, follow this exact sequence:
 
-## Demo Flow (for judges)
+1. **The "Wow" Introduction:** Start at the `/login` screen. Let the judges appreciate the Cyber Truck motion effects and the premium dark-mode aesthetics.
+2. **Admin Verification:** Log in as `admin@cargoloop.demo` (Password: `admin1234`). Show the **User Management** screen, then go to **Verification** to approve a pending truck (showing the "View Document" feature).
+3. **Agentic Dispatching:** Log in as `shipper@cargoloop.demo`. Go to the **Command Center**. Type: *"I need to move 5 tons of temperature-sensitive vaccines from Delhi to Mumbai tomorrow"* into the AI box. Watch it instantly parse and redirect to the Map!
+4. **The Match:** Go to **Autonomous Match**. Click "Find Best Match". Show how the algorithm instantly pairs the vaccine load with a verified Cold-Storage truck, complete with an AI-generated explanation.
+5. **The Impact:** Finally, navigate to **Impact Data** to show the live charts displaying Empty KM Saved and CO₂ Green Credits earned. 
 
-1. Seed demo data or manually add: **200kg Mangoes, Nashik → Mumbai**
-2. Register 3 vehicles (Pune→Mumbai cold truck scores highest)
-3. Go to **Matches** → click **Find Best Match**
-4. See score breakdown + AI explanation
-5. Map highlights the selected route
-6. **Analytics** updates with impact metrics
-
-## Matching Engine
-
-```
-score = capacity×0.35 + route×0.30 + reliability×0.20 + distance×0.15 + cargo bonus
-```
-
-Factors: capacity fit, destination overlap, proximity to pickup, driver reliability, cold-chain compatibility for perishables.
-
-## License
-
-MIT
+*CargoLoop — Enterprise Grade. FAR AWAY 2026.*

@@ -19,6 +19,7 @@ class VehicleCreate(BaseModel):
     cold_storage: bool = Field(default=False, alias="coldStorage")
     reliability: float = Field(ge=0, le=100, default=85)
     status: str = Field(default="pending") # pending, verified, rejected
+    verification_proof: Optional[str] = Field(default=None, alias="verificationProof")
     trust_score: Optional[float] = Field(default=None, alias="trustScore")
 
     model_config = {"populate_by_name": True}

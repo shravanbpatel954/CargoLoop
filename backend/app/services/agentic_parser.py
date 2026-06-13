@@ -1,9 +1,11 @@
 import json
 import os
 import google.generativeai as genai
+from dotenv import load_dotenv
 from app.models.load import LoadCreate
 
 def init_gemini():
+    load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
     if api_key:
         genai.configure(api_key=api_key)
@@ -23,7 +25,11 @@ async def parse_natural_language_load(prompt: str) -> LoadCreate:
             "You are an AI logistics parsing assistant. "
             "Extract the following fields from the user's shipping request:\n"
             "- pickup: city or location (string)\n"
+            "- pickupLat: estimated latitude for pickup city (float)\n"
+            "- pickupLng: estimated longitude for pickup city (float)\n"
             "- drop: city or location (string)\n"
+            "- dropLat: estimated latitude for drop city (float)\n"
+            "- dropLng: estimated longitude for drop city (float)\n"
             "- weight: weight in kg (float). Note: 1 ton = 1000 kg.\n"
             "- cargoType: describe the cargo type (string)\n"
             "- urgency: must be strictly one of ['Low', 'Medium', 'High'] based on the prompt's implied urgency.\n"
@@ -45,7 +51,11 @@ async def parse_natural_language_load(prompt: str) -> LoadCreate:
         
         return LoadCreate(
             pickup=data.get("pickup", "Unknown"),
+            pickupLat=data.get("pickupLat"),
+            pickupLng=data.get("pickupLng"),
             drop=data.get("drop", "Unknown"),
+            dropLat=data.get("dropLat"),
+            dropLng=data.get("dropLng"),
             weight=float(data.get("weight", 100.0)),
             cargoType=data.get("cargoType", "General"),
             urgency=data.get("urgency", "Medium")

@@ -166,6 +166,18 @@ export default function Vehicles() {
               </label>
             </div>
 
+            <label className="block">
+              <span className={labelClass}>Verification Proof (RC/Doc Link)</span>
+              <input
+                required
+                type="url"
+                className={inputClass}
+                value={form.verificationProof || ''}
+                onChange={(e) => setForm({ ...form, verificationProof: e.target.value })}
+                placeholder="https://drive.google.com/file/d/..."
+              />
+            </label>
+
             <label className="flex items-center gap-3 bg-slate-900/50 border border-slate-800 p-4 rounded-xl cursor-pointer hover:border-slate-700 transition-colors mt-2">
               <input
                 type="checkbox"

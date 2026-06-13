@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, X, ShieldAlert, AlertTriangle, Truck } from 'lucide-react'
-import { getVehicles } from '../services/api'
+import { Check, X, ShieldAlert, AlertTriangle, Truck, FileCheck } from 'lucide-react'
+import { getVehicles, verifyVehicle } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
 export default function AdminVerification() {
@@ -26,18 +26,11 @@ export default function AdminVerification() {
 
   const handleVerify = async (id, status) => {
     try {
-      // We need to implement the verification API call
-      const res = await fetch(`http://localhost:8000/vehicles/${id}/verify`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status, trust_score: status === 'verified' ? Math.floor(Math.random() * 20) + 80 : 0 }) // AI Trust Score logic 80-100
+      await verifyVehicle(id, { 
+        status, 
+        trust_score: status === 'verified' ? Math.floor(Math.random() * 20) + 80 : 0 
       })
-      if (res.ok) {
-        setVehicles(vehicles.filter(v => v._id !== id))
-      }
+      setVehicles(vehicles.filter(v => v._id !== id))
     } catch (err) {
       console.error(err)
     }
@@ -110,6 +103,21 @@ export default function AdminVerification() {
                   <p className="text-xs text-slate-500">Drop-off Location</p>
                   <p className="text-sm text-slate-200 font-medium truncate">{vehicle.destination}</p>
                 </div>
+                
+                {vehicle.verificationProof && (
+                  <div className="pt-2 border-t border-slate-800 mt-2">
+                    <p className="text-xs text-slate-500 mb-1">Attached Verification Document</p>
+                    <a 
+                      href={vehicle.verificationProof} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-brand-400 hover:text-brand-300 font-medium bg-brand-500/10 px-3 py-1.5 rounded-lg border border-brand-500/20 transition-colors"
+                    >
+                      <FileCheck size={16} />
+                      View Document
+                    </a>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 mt-auto">

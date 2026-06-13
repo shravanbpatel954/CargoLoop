@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.mongodb import close_db, connect_db
-from app.routes import analytics, auth, loads, matches, vehicles
+from app.routes import analytics, auth, loads, matches, vehicles, users
 
 
 from datetime import datetime, timezone
@@ -33,6 +33,8 @@ async def lifespan(_: FastAPI):
     await close_db()
 
 
+import os
+
 app = FastAPI(
     title="CargoLoop API",
     description="Turning empty miles into opportunity — Logistics & Transit matching engine",
@@ -40,9 +42,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,6 +58,7 @@ app.include_router(loads.router, prefix="/loads", tags=["loads"])
 app.include_router(vehicles.router, prefix="/vehicles", tags=["vehicles"])
 app.include_router(matches.router, prefix="/matches", tags=["matches"])
 app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+app.include_router(users.router, prefix="/users", tags=["users"])
 
 
 @app.get("/health")

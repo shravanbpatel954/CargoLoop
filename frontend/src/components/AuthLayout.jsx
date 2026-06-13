@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Hexagon } from 'lucide-react'
+import { Hexagon, Truck } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function AuthLayout({ title, subtitle, children, footer }) {
@@ -55,6 +55,40 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
               />
             )
           })}
+        </div>
+
+        {/* Cyber Trucks */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <motion.div
+            initial={{ x: -200 }}
+            animate={{ x: '100vw' }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            className="absolute top-1/4 text-brand-400 flex items-center gap-2"
+          >
+            <Truck size={72} className="drop-shadow-[0_0_25px_rgba(14,165,233,1)]" />
+            <div className="w-48 h-1.5 bg-brand-400 rounded-full blur-[4px]" />
+          </motion.div>
+
+          <motion.div
+            initial={{ x: '100vw' }}
+            animate={{ x: -200 }}
+            transition={{ duration: 28, repeat: Infinity, ease: 'linear', delay: 3 }}
+            className="absolute top-1/3 flex items-center gap-2"
+            style={{ transform: 'scaleX(-1)' }}
+          >
+            <Truck size={56} className="text-accent drop-shadow-[0_0_25px_rgba(16,185,129,1)]" />
+            <div className="w-32 h-1.5 bg-accent rounded-full blur-[4px]" />
+          </motion.div>
+
+          <motion.div
+            initial={{ x: -200 }}
+            animate={{ x: '100vw' }}
+            transition={{ duration: 14, repeat: Infinity, ease: 'linear', delay: 7 }}
+            className="absolute top-[40%] text-purple-500 flex items-center gap-2"
+          >
+            <Truck size={64} className="drop-shadow-[0_0_25px_rgba(168,85,247,1)]" />
+            <div className="w-64 h-1.5 bg-purple-500 rounded-full blur-[4px]" />
+          </motion.div>
         </div>
         
         <div className="relative z-10">

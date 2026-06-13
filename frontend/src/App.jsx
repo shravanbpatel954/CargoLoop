@@ -16,6 +16,8 @@ import Analytics from './pages/Analytics'
 import LiveTracking from './pages/LiveTracking'
 import AdminVerification from './pages/AdminVerification'
 
+import UserManagement from './pages/UserManagement'
+
 function isStandalonePWA() {
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
@@ -89,6 +91,22 @@ function AppRoutes() {
         />
         <Route path="matches" element={<Matches />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route
+          path="admin"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <AdminVerification />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <UserManagement />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
