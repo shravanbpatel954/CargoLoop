@@ -9,61 +9,111 @@ import {
   Shield,
   Smartphone,
   Hexagon,
-  Activity
+  Activity,
+  CheckCircle2,
+  XCircle,
+  Play
 } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { motion, useInView } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
 
 const stats = [
-  { value: '40%', label: 'Empty fleet ratio' },
-  { value: '₹4.2K', label: 'Avg. backhaul premium' },
-  { value: '18%', label: 'Fuel savings' },
-  { value: '91%', label: 'AI Match Confidence' },
+  { value: '35%', label: 'Deadhead Ratio' },
+  { value: '18%', label: 'Profit Bleed via Fuel' },
+  { value: '1.2B', label: 'Tons of Wasted CO₂' },
+  { value: '₹0', label: 'Revenue on Returns' },
 ]
 
 const steps = [
-  { n: '01', title: 'Intelligent Dispatch', text: 'Enter natural language prompts. Our Agentic AI automatically extracts routing, weight, and cold-chain parameters.' },
-  { n: '02', title: 'Predictive Scoring', text: 'Proprietary algorithm ranks global capacity against live weather, traffic, and historical reliability.' },
-  { n: '03', title: 'Autonomous Routing', text: 'Gemini-powered insights explain every match. Dynamic pricing adjusts to real-world risk.' },
+  { n: '01', title: 'Capacity Tokenization', text: 'Carriers broadcast their empty return routes and vehicle specifications.' },
+  { n: '02', title: 'Agentic Load Parsing', text: 'Shippers type requirements. Gemini AI instantly geocodes and configures the load.' },
+  { n: '03', title: 'Algorithmic Match Engine', text: 'Our system evaluates Haversine distance, trust scores, and cold-chain constraints.' },
+  { n: '04', title: 'Yield Optimization', text: 'Carriers monetize deadhead miles while shippers secure capacity at competitive rates.' },
 ]
 
 const features = [
   {
-    icon: Truck,
-    title: 'Dynamic Economics',
-    text: 'Real-time pricing adjustments based on distance, cargo perishability, and predictive route risks.',
+    icon: Zap,
+    title: 'Agentic Dispatch',
+    text: 'Ditch manual forms. Gemini AI instantly extracts load constraints, geocodes locations, and initiates searches from natural text.',
   },
   {
     icon: Sparkles,
-    title: 'Agentic Parsing',
-    text: 'Say goodbye to forms. Tell the system what you need, and the AI handles the configuration instantly.',
+    title: 'Algorithmic Fleet Matching',
+    text: 'A proprietary recommendation engine matching idle capacity with pending shipments using predictive routing overlap.',
+  },
+  {
+    icon: Shield,
+    title: 'Enterprise Trust Scoring',
+    text: 'A robust verification pipeline assessing carrier reliability through historical performance and RC document validation.',
+  },
+  {
+    icon: MapPin,
+    title: 'Dynamic Risk Radar',
+    text: 'Command center UI with live fleet tracking, proactively flagging weather anomalies and suggesting algorithmic reroutes.',
+  },
+  {
+    icon: Activity,
+    title: 'Predictive Economics',
+    text: 'Real-time telemetry on revenue generated from backhauls and overall fleet efficiency metrics.',
   },
   {
     icon: Leaf,
     title: 'Carbon Tokenization',
-    text: 'Live ticker quantifying CO₂ avoided. Turn your optimized supply chain into tangible Green Credits.',
+    text: 'Automatically quantify your environmental impact by tracking precise CO₂ emissions avoided via combined journeys.',
   },
-  {
-    icon: MapPin,
-    title: 'Live Fleet Radar',
-    text: 'Command center UI with glowing neon map tracking. See your cargo move across the network.',
-  },
-]
-
-const trust = [
-  { icon: Shield, text: 'Enterprise Auth' },
-  { icon: Smartphone, text: 'PWA Ready' },
-  { icon: Zap, text: 'Sub-second latency' },
 ]
 
 const liveUpdates = [
-  "Matched 14t Cold-Chain: Pune → Mumbai (Saved 82kg CO₂)",
-  "Fleet Re-routed: Weather anomaly detected near Nashik",
-  "Autonomous Dispatch: 5t Electronics matched in 1.2s",
-  "Capacity Alert: High demand detected in Nagpur sector",
-  "Matched 20t General Cargo: Thane → Aurangabad (Saved 145kg CO₂)",
-  "Pricing Updated: Surge pricing active due to traffic bottlenecks",
+  "Agentic Match: 14t Cold-Chain (Saved 82kg CO₂)",
+  "Yield Optimized: ₹5,200 recovered on return route",
+  "Algorithmic Pairing: 5t Electronics matched in 1.2s",
+  "Risk Alert: Rerouting fleet to avoid Nashik sector",
+  "Capacity Tokenized: 20t General Cargo added",
+  "Impact: 45 liters of fuel conserved on recent run",
 ]
+
+const impactMetrics = [
+  { label: 'Deadhead Miles Saved', value: 124500, suffix: '+' },
+  { label: 'Yield Recovered', value: 8500000, prefix: '₹', suffix: '+' },
+  { label: 'Green Credits Generated', value: 3200, suffix: ' kg' },
+  { label: 'Fleet ROI Increase', value: 42, suffix: '%' },
+]
+
+function AnimatedCounter({ value, prefix = '', suffix = '' }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const end = value;
+      const duration = 2000;
+      const incrementTime = 20;
+      const steps = duration / incrementTime;
+      const stepValue = end / steps;
+
+      const timer = setInterval(() => {
+        start += stepValue;
+        if (start >= end) {
+          setCount(end);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(start));
+        }
+      }, incrementTime);
+
+      return () => clearInterval(timer);
+    }
+  }, [value, isInView]);
+
+  return (
+    <span ref={ref}>
+      {prefix}{count.toLocaleString()}{suffix}
+    </span>
+  );
+}
 
 function LiveFleetPulse() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -299,6 +349,7 @@ export default function Landing() {
         </div>
       </header>
 
+      {/* SECTION 1 - HERO */}
       <section className="relative mx-auto max-w-7xl px-6 py-20 md:py-32 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/20 rounded-full blur-[120px] pointer-events-none opacity-50" />
         <CyberNetworkGrid />
@@ -315,7 +366,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-xs font-semibold text-brand-400 mb-8 tracking-wider uppercase shadow-[0_0_15px_rgba(14,165,233,0.2)]"
           >
-            <Sparkles size={14} className="animate-pulse" /> FAR AWAY 2026 Innovation
+            <Sparkles size={14} className="animate-pulse" /> Turning Empty Miles Into Opportunity
           </motion.span>
           
           {!isBooting && (
@@ -326,7 +377,7 @@ export default function Landing() {
               className="text-5xl font-extrabold leading-[1.1] text-white md:text-7xl heading-font tracking-tight flex flex-col items-center"
             >
               <div className="flex flex-wrap justify-center gap-x-4">
-                {['Logistics', 'intelligence,'].map((word, i) => (
+                {['Every', 'Empty', 'Mile', 'Is'].map((word, i) => (
                   <motion.span key={i} variants={itemVars}>{word}</motion.span>
                 ))}
               </div>
@@ -334,7 +385,7 @@ export default function Landing() {
                 variants={itemVars}
                 className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-brand-200 to-accent mt-2 drop-shadow-lg"
               >
-                fully autonomous.
+                A Wasted Asset.
               </motion.span>
             </motion.h1>
           )}
@@ -345,7 +396,7 @@ export default function Landing() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="mt-8 text-lg leading-relaxed text-slate-400 md:text-xl max-w-2xl mx-auto"
           >
-            CargoLoop is the premier AI-driven freight network. Cut deadhead miles, instantly dispatch via natural language, and let predictive routing optimize every transit decision.
+            35% of trucks run empty after delivery. CargoLoop deploys Agentic AI to autonomously pair idle fleet capacity with real-time shipment demand—recovering lost margins and slashing carbon emissions.
           </motion.p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
@@ -358,45 +409,41 @@ export default function Landing() {
           </div>
           
           <LiveFleetPulse />
-          
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-6">
-            {trust.map(({ icon: Icon, text }) => (
-              <span
-                key={text}
-                className="inline-flex items-center gap-2 text-sm font-medium text-slate-500"
-              >
-                <Icon size={16} className="text-slate-600" />
-                {text}
-              </span>
-            ))}
-          </div>
         </motion.div>
       </section>
 
-      <section className="relative border-y border-slate-800 bg-slate-900/20 py-16">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 md:grid-cols-4">
-          {stats.map((s, i) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              key={s.label} 
-              className="text-center md:text-left"
-            >
-              <p className="text-4xl font-extrabold heading-font text-white">{s.value}</p>
-              <p className="mt-2 text-sm font-medium text-slate-500">{s.label}</p>
-            </motion.div>
-          ))}
+      {/* SECTION 2 - THE PROBLEM */}
+      <section className="relative border-y border-slate-800 bg-slate-900/20 py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+             <h2 className="text-3xl font-bold heading-font text-white tracking-tight">The Hidden Cost of Empty Miles</h2>
+             <p className="mt-4 text-slate-400">The logistics industry is bleeding margins due to structural inefficiencies.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {stats.map((s, i) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                key={s.label} 
+                className="text-center md:text-left border-l-2 border-brand-500/20 pl-6"
+              >
+                <p className="text-4xl font-extrabold heading-font text-white">{s.value}</p>
+                <p className="mt-2 text-sm font-medium text-slate-400 uppercase tracking-wider">{s.label}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
+      {/* SECTION 3 - HOW CARGOLOOP WORKS */}
       <section className="relative mx-auto max-w-7xl px-6 py-24">
         <div className="max-w-2xl">
-          <h2 className="text-3xl font-bold heading-font text-white md:text-4xl tracking-tight">The Autonomous Pipeline</h2>
-          <p className="mt-4 text-slate-400 text-lg">How CargoLoop transforms empty capacity into high-yield logistics in milliseconds.</p>
+          <h2 className="text-3xl font-bold heading-font text-white md:text-4xl tracking-tight">How CargoLoop Works</h2>
+          <p className="mt-4 text-slate-400 text-lg">A simple 4-step workflow to turn unused capacity into revenue.</p>
         </div>
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-16 grid gap-6 md:grid-cols-4">
           {steps.map((step, i) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -407,33 +454,104 @@ export default function Landing() {
               key={step.n}
               className="group relative rounded-3xl border border-slate-800 bg-slate-900/50 p-8 hover:bg-slate-800/80 transition-all shadow-lg hover:shadow-brand-500/10 cursor-default"
             >
-              <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                 <ArrowRight className="text-brand-500" />
-              </div>
+              {i < steps.length - 1 && (
+                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10 opacity-50">
+                   <ArrowRight className="text-brand-500" />
+                </div>
+              )}
               <span className="text-5xl font-black heading-font text-slate-800 transition-colors group-hover:text-brand-500/40">{step.n}</span>
-              <h3 className="mt-6 text-xl font-bold text-white heading-font">{step.title}</h3>
-              <p className="mt-3 leading-relaxed text-slate-400">{step.text}</p>
+              <h3 className="mt-6 text-xl font-bold text-white heading-font leading-tight">{step.title}</h3>
+              <p className="mt-3 leading-relaxed text-slate-400 text-sm">{step.text}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <section className="relative border-t border-slate-800 bg-slate-900/30 py-24">
+      {/* SECTION 4 - WHY CARGOLOOP IS DIFFERENT */}
+      <section className="relative border-t border-slate-800 bg-slate-900/30 py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(14,165,233,0.05),transparent_70%)]" />
+        <div className="mx-auto max-w-7xl px-6 relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+             <h2 className="text-3xl font-bold heading-font text-white tracking-tight">Why CargoLoop Is Different</h2>
+             <p className="mt-4 text-slate-400">A paradigm shift from manual marketplaces to intelligent optimization.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Traditional Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="rounded-3xl border border-slate-800 bg-slate-950 p-10"
+            >
+              <h3 className="text-2xl font-bold text-white mb-6 heading-font flex items-center gap-3">
+                <XCircle className="text-rose-500" />
+                Traditional Freight Platforms
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  "Manual load boards & phone calls",
+                  "Reactive, delayed matching",
+                  "Zero visibility into actual capacity",
+                  "No carbon tracking or incentives"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-slate-400">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            {/* CargoLoop Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="rounded-3xl border border-brand-500/40 bg-brand-500/5 p-10 relative overflow-hidden shadow-[0_0_30px_rgba(14,165,233,0.1)]"
+            >
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Hexagon size={120} className="text-brand-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-6 heading-font flex items-center gap-3 relative z-10">
+                <CheckCircle2 className="text-brand-400" />
+                CargoLoop
+              </h3>
+              <ul className="space-y-4 relative z-10">
+                {[
+                  "Agentic natural language parsing",
+                  "Instant algorithmic pairing",
+                  "Enterprise-grade trust scoring",
+                  "Automated Green Credit generation"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-white font-medium">
+                    <Sparkles size={18} className="text-brand-400 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 - PLATFORM CAPABILITIES */}
+      <section className="relative border-t border-slate-800 bg-slate-950 py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
-             <h2 className="text-3xl font-bold heading-font text-white tracking-tight">Enterprise Capabilities</h2>
-             <p className="mt-4 text-slate-400">Engineered for massive scale and instant decision making.</p>
+             <h2 className="text-3xl font-bold heading-font text-white tracking-tight">Platform Capabilities</h2>
+             <p className="mt-4 text-slate-400">Tools designed to deliver tangible business value.</p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, text }, i) => (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
+                whileHover={{ scale: 1.03, y: -5 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, type: 'spring' }}
                 key={title} 
-                className="group rounded-3xl border border-slate-800 bg-slate-950 p-8 hover:border-brand-500/50 transition-colors shadow-xl hover:shadow-brand-500/20 cursor-default relative overflow-hidden"
+                className="group rounded-3xl border border-slate-800 bg-slate-900/40 p-8 hover:border-brand-500/50 transition-colors shadow-xl hover:shadow-brand-500/20 cursor-default relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <div className="mb-6 inline-flex rounded-2xl bg-brand-500/10 p-4 text-brand-400 ring-1 ring-brand-500/20 group-hover:bg-brand-500 group-hover:text-white transition-colors">
@@ -447,10 +565,59 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="relative border-t border-slate-800 py-12 text-center text-sm text-slate-600 font-medium">
-        <div className="mx-auto flex flex-col items-center gap-4">
-          <Hexagon className="text-slate-700" size={24} />
-          <p>CargoLoop · FAR AWAY 2026 · Logistics & Transit Theme</p>
+      {/* SECTION 6 - LIVE IMPACT */}
+      <section className="relative border-t border-slate-800 bg-slate-900/30 py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+             <h2 className="text-3xl font-bold heading-font text-white tracking-tight">Live Impact</h2>
+             <p className="mt-4 text-slate-400">Measurable results driving a more efficient logistics network.</p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {impactMetrics.map((metric, i) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                key={metric.label} 
+                className="text-center p-8 rounded-3xl bg-slate-950 border border-slate-800"
+              >
+                <div className="text-4xl font-extrabold heading-font text-brand-400 drop-shadow-[0_0_10px_rgba(14,165,233,0.5)]">
+                  <AnimatedCounter value={metric.value} prefix={metric.prefix} suffix={metric.suffix} />
+                </div>
+                <p className="mt-4 text-sm font-semibold text-white uppercase tracking-wider">{metric.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8 - FOOTER */}
+      <footer className="relative border-t border-slate-800 py-16 text-center text-sm text-slate-500 font-medium bg-slate-950">
+        <div className="mx-auto flex flex-col items-center gap-6">
+          <div className="flex items-center gap-2 text-white/80">
+            <Hexagon className="text-brand-500" size={28} />
+            <span className="font-bold heading-font tracking-wide text-xl">CargoLoop</span>
+          </div>
+          
+          <p className="text-brand-400/80 font-semibold tracking-wide">Turning Empty Miles Into Opportunity</p>
+          
+          <div className="flex flex-col gap-2 mt-4">
+            <p>Built by Team StackStorm</p>
+            <p>FAR AWAY 2026 – Logistics & Transit</p>
+          </div>
+          
+          <a 
+            href="https://github.com/shravanbpatel954/CargoLoop" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="mt-6 flex items-center gap-2 px-6 py-2.5 rounded-full border border-slate-800 hover:border-slate-600 hover:text-white hover:bg-slate-900 transition-all"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+            </svg>
+            <span>View Source on GitHub</span>
+          </a>
         </div>
       </footer>
     </div>
