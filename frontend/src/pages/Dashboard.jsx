@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Truck, Package, Route, Leaf, IndianRupee, ShieldAlert, CloudLightning, AlertTriangle } from 'lucide-react'
-import { getAnalytics, getLoads, getVehicles } from '../services/api'
+import { getAnalytics, getLoads, getVehicles, getMatches, updateMatchStatus } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import MapView from '../components/MapView'
 import AgenticDispatcher from '../components/AgenticDispatcher'
@@ -80,13 +80,15 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null)
   const [loads, setLoads] = useState([])
   const [vehicles, setVehicles] = useState([])
+  const [matches, setMatches] = useState([])
 
   const fetchData = () => {
-    Promise.all([getAnalytics(), getLoads(), getVehicles()])
-      .then(([a, l, v]) => {
+    Promise.all([getAnalytics(), getLoads(), getVehicles(), getMatches()])
+      .then(([a, l, v, m]) => {
         setAnalytics(a)
         setLoads(l)
         setVehicles(v)
+        setMatches(m)
       })
       .catch(() => {})
   }
@@ -220,6 +222,65 @@ export default function Dashboard() {
                        </div>
                      </motion.div>
                    ))
+                 )}
+               </div>
+            </div>
+          )}
+
+          {role === 'carrier' && (
+            <div className="glass-panel p-5 rounded-2xl flex flex-col h-[250px] overflow-hidden relative border-brand-500/50 shadow-[0_0_20px_rgba(14,165,233,0.15)]">
+               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-cyan-400 to-transparent opacity-80" />
+               <h2 className="font-bold heading-font text-white flex items-center gap-2 mb-4">
+                 <AlertTriangle size={18} className="text-brand-400" />
+                 Pending Recommendations
+               </h2>
+               <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
+                 {matches.filter(m => m.status === 'pending_approval').length === 0 ? (
+                   <p className="text-sm text-slate-500 text-center mt-4">No pending AI match recommendations.</p>
+                 ) : (
+                   matches.filter(m => m.status === 'pending_approval').map((m, i) => {
+                     const load = loads.find(l => l._id === m.loadId) || {}
+                     const vehicle = vehicles.find(v => v._id === m.vehicleId) || {}
+                     return (
+                       <motion.div 
+                         key={m._id}
+                         initial={{ opacity: 0, x: -10 }}
+                         animate={{ opacity: 1, x: 0 }}
+                         transition={{ delay: i * 0.1 }}
+                         className="flex flex-col gap-2 p-3 rounded-xl bg-slate-900 border border-brand-500/30"
+                       >
+                         <div className="flex justify-between items-start">
+                           <div>
+                             <p className="text-sm font-bold text-white">{vehicle.vehicleNumber}</p>
+                             <p className="text-xs text-brand-400 font-medium">{load.pickup} → {load.drop}</p>
+                           </div>
+                           <span className="text-xs font-bold bg-brand-500/20 text-brand-400 px-2 py-1 rounded border border-brand-500/30">
+                             {load.weight}kg {load.cargoType}
+                           </span>
+                         </div>
+                         <div className="flex items-center gap-2 mt-2">
+                           <button 
+                             onClick={async () => {
+                               await updateMatchStatus(m._id, 'approved');
+                               fetchData();
+                             }}
+                             className="flex-1 bg-brand-500 hover:bg-brand-400 text-white text-xs font-bold py-1.5 rounded-lg transition-colors"
+                           >
+                             Approve Dispatch
+                           </button>
+                           <button 
+                             onClick={async () => {
+                               await updateMatchStatus(m._id, 'rejected');
+                               fetchData();
+                             }}
+                             className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-1.5 rounded-lg border border-slate-700 transition-colors"
+                           >
+                             Reject
+                           </button>
+                         </div>
+                       </motion.div>
+                     )
+                   })
                  )}
                </div>
             </div>

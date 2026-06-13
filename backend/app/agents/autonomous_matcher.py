@@ -85,7 +85,7 @@ async def run_loop():
                         best_breakdown = breakdown
 
                 if best_score > 72:
-                    # AUTO-MATCH
+                    # RECOMMENDED
                     explanation = await generate_explanation(load, best_listing, best_vehicle, best_score, best_breakdown)
                     
                     match_doc = {
@@ -93,6 +93,7 @@ async def run_loop():
                         "listingId": best_listing["_id"],
                         "vehicleId": best_vehicle["_id"],
                         "score": best_score,
+                        "status": "pending_approval",
                         "breakdown": best_breakdown,
                         "explanation": explanation,
                         "createdAt": datetime.now(timezone.utc)
@@ -104,7 +105,7 @@ async def run_loop():
                         carrier = users.get(str(best_vehicle["createdBy"]))
                         if carrier:
                             carrier_name = carrier.get("name", "Unknown")
-                            # Trigger trust recalculation since they got auto-matched
+                            # Trigger trust recalculation since they got recommended
                             asyncio.create_task(recalculate_carrier_trust(str(carrier["_id"])))
 
                     await manager.broadcast({
@@ -112,7 +113,7 @@ async def run_loop():
                         "score": best_score,
                         "load_details": f"{load['weight']}kg {load.get('cargoType')}, {load['pickup']} → {load['drop']}",
                         "carrier_details": f"{carrier_name} ({best_vehicle.get('vehicleNumber')})",
-                        "explanation": f"Matched autonomously: {explanation} Carrier notified via SMS."
+                        "explanation": f"Recommended match: {explanation} Carrier notified for approval."
                     })
                     
                 elif 55 <= best_score <= 72:

@@ -27,8 +27,8 @@ export default function AgentFeed() {
   }
 
   const getTypeStyle = (type) => {
-    if (type === 'match_made') return { color: 'text-green-400', border: 'border-green-500/30', bg: 'bg-green-500/10', icon: CheckCircle2, label: 'AUTO-MATCHED' }
-    if (type === 'match_suggested') return { color: 'text-yellow-400', border: 'border-yellow-500/30', bg: 'bg-yellow-400/10', icon: AlertCircle, label: 'SUGGESTED — HUMAN REVIEW' }
+    if (type === 'match_made') return { color: 'text-green-400', border: 'border-green-500/30', bg: 'bg-green-500/10', icon: CheckCircle2, label: 'RECOMMENDED MATCH' }
+    if (type === 'match_suggested') return { color: 'text-yellow-400', border: 'border-yellow-500/30', bg: 'bg-yellow-400/10', icon: AlertCircle, label: 'HUMAN REVIEW REQUIRED' }
     return { color: 'text-red-400', border: 'border-red-500/30', bg: 'bg-red-500/10', icon: XCircle, label: 'NO MATCH FOUND' }
   }
 

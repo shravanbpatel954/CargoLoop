@@ -9,6 +9,7 @@ from app.dependencies.auth import get_current_user
 from app.models.match import Match, MatchResult
 from app.services.ai_explainer import explain_match
 from app.services.matching import find_best_match
+from app.services.scoring import composite_score
 
 router = APIRouter()
 
@@ -103,3 +104,22 @@ async def list_matches(_: dict = Depends(get_current_user)):
     db = get_db()
     cursor = db.matches.find().sort("createdAt", -1)
     return [_serialize(doc) async for doc in cursor]
+
+
+class MatchStatusUpdate(BaseModel):
+    status: str
+
+@router.patch("/{match_id}/status")
+async def update_match_status(match_id: str, payload: MatchStatusUpdate, _: dict = Depends(get_current_user)):
+    db = get_db()
+    if not ObjectId.is_valid(match_id):
+        raise HTTPException(status_code=400, detail="Invalid match id")
+    
+    result = await db.matches.update_one(
+        {"_id": ObjectId(match_id)},
+        {"$set": {"status": payload.status}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Match not found or status already set")
+        
+    return {"message": f"Match status updated to {payload.status}"}
